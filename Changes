@@ -1,6 +1,14 @@
+0.06 Fri May 23 12:11:07 EDT 2003
+	- added  "v" ->  "b" mapping.
+	- added "fm" -> "fn" mapping. 
+	- a bit of a regex hack to avoid nested brackets,
+	  should clean this up later.
+	- added "N" in IM susbstitutions, review why it was
+	  left out earlier.
+
 0.05 Wed May 21 18:42:15 EDT 2003
-	- added parens to the $keyboard re and removed from while loop,
-	  this is somehow more portable.
+	- added parens to the $keyboard re and removed from
+	  while loop, this is somehow more portable.
 
 0.04 Wed May 21 14:17:49 EDT 2003
 	- fixed test script.

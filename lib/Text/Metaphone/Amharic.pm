@@ -11,7 +11,7 @@ BEGIN
 	use strict;
 	use vars qw( $VERSION %IMExpected %IMError %plosives $GRANDULARITY $STYLE );
 
-	$VERSION = "0.05";
+	$VERSION = "0.06";
 
 	%plosives = (
 		k => 'ቀ',
@@ -30,6 +30,7 @@ BEGIN
 		ች => "ʧ",
 		ጭ => "ʧ",
 		ን => "n",
+		ኝ => "n",
 		ክ => "k",
 		ዝ => "z",
 		ዥ => "ʒ",
@@ -46,6 +47,7 @@ BEGIN
 		ች => [ "ጭ", "ʧ'" ],
 		ጭ => [ "ች", "ʧ"  ],
 		ን => [ "ኝ", "ɲ"  ],
+		ኝ => [ "ን", "n"  ],
 		ክ => [ "ኽ", "x"  ],
 		ዝ => [ "ዥ", "ʒ"  ],
 		ዥ => [ "ዝ", "z"  ],
@@ -122,13 +124,15 @@ my $self = shift;
 	s/([#11#])/setForm($1,$ሳድስ)."ዋ"/eg;
 	s/[=#ሰ#=]/ሰ/g;
 	s/[=#ጸ#=]/ጸ/g;
+	s/[#ቨ#]/በ/g;
 
 	#
 	# now strip vowels, this simplies later code:
 	#
 	s/(\p{InEthiopic})/ ($1 eq 'ኘ') ? $1 : setForm($1,$ሳድስ)/eg;
 
-	tr/ልምርሽብቭውይድጅግፍ/lmrʃbvwjdʤgf/ if ( $self->{style} );
+	# tr/ልምርሽብቭውይድጅግፍ/lmrʃbvwjdʤgf/ if ( $self->{style} );
+	tr/ልምርሽብቭውይድጅግፍ/lmrʃbbwjdʤgf/ if ( $self->{style} );
 
 	$_;
 }
@@ -211,25 +215,29 @@ my ( $self, $re, @keys ) = @_;
 		#
 		#  handle phonological problems
 		#
-		if ( $keys[0] =~ /mb/ ) {
+		if ( $keys[0] =~ /m[bf]/ ) {
 			my @newKeys;
 			for (my $i=0; $i < @keys; $i++) {
 				$newKeys[$i] = $keys[$i];  # copy old keys
 				$newKeys[$i] =~ s/mb/nb/;  # update old keys for primary mapping
+				$newKeys[$i] =~ s/mf/nf/;  # update old keys for primary mapping
 			}
 			push (@keys,@newKeys);  # add new keys to old keys
 			$re =~ s/mb/[mn]b/g;
+			$re =~ s/mb/[mn]f/g;
 		}
 	} else {
 
-		if ( $keys[0] =~ /ምብ/ ) {
+		if ( $keys[0] =~ /ም[ብፍ]/ ) {
 			my @newKeys;
 			for (my $i=0; $i < @keys; $i++) {
 				$newKeys[$i] = $keys[$i];  # copy old keys
 				$newKeys[$i] =~ s/ምብ/ንብ/;  # update old keys for primary mapping
+				$newKeys[$i] =~ s/ምፍ/ንፍ/;  # update old keys for primary mapping
 			}
 			push (@keys,@newKeys);  # add new keys to old keys
 			$re =~ s/ምብ/[ምን]ብ/g;
+			$re =~ s/ምፍ/[ምን]ፍ/g;
 		}
 	}
 
@@ -246,7 +254,7 @@ my ( $self, $re, @keys ) = @_;
 	#  try to keep least probable keys last:
 	#
 	$_ = $keys[0];                                       # fold upper   # bidi folding
-	my $keyboard = ( $self->{_grandularity} eq "low" ) ? qr/([ቕዥጥጭጽጵ])/ : qr/([ስቅቕትችንክዝዥጥጭጽጵፕ])/ ;
+	my $keyboard = ( $self->{_grandularity} eq "low" ) ? qr/([ቕኝዥጥጭጽጵ])/ : qr/([ስቅቕትችንኝክዝዥጥጭጽጵፕ])/ ;
 	while ( /$keyboard/ ) {
 		my $a = $1;
 		my @newKeys;
@@ -275,6 +283,12 @@ my ( $self, $re, @keys ) = @_;
 		}
 	}
 
+
+	$re =~ s/\[\[/[/g;
+	$re =~ s/\]\]/]/g;
+	$re =~ s/\[(\w)\[/[$1/g;
+	$re =~ s/\](\w)\]/$1]/g;
+	$re =~ s/(\w)(\w)\]/($1 eq $2) ? "$1]" : "$1$2]" /eg;
 
 	#
 	# convert symbols that were missed in low grandularity mode:
