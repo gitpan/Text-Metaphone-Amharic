@@ -1,0 +1,6 @@
+Changes
+MANIFEST
+Makefile.PL
+README
+lib/Text/Metaphone/Amharic.pm
+t/01phones.t

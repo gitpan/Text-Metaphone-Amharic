@@ -1,0 +1,11 @@
+This is reimplementation of the Amharic Metaphone algorithm
+of the Text-TransMetaphone package.  This implementation uses
+an object oriented interface and will generate keys in
+Ethiopic script by default.  IPA keys remain available and
+may be set at instantiation time or afterwards.  See the POD
+for details.
+
+The Ethiopic keys are by far the easiest to read and associate
+with the initial word (this aids development).  ASCII keys may
+eventually be implemented, but will require a bit of care and
+thought.
