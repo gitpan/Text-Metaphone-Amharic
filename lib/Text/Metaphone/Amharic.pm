@@ -11,7 +11,7 @@ BEGIN
 	use strict;
 	use vars qw( $VERSION %IMExpected %IMError %plosives $GRANDULARITY $STYLE );
 
-	$VERSION = '0.03';
+	$VERSION = "0.04";
 
 	%plosives = (
 		k => 'ቀ',

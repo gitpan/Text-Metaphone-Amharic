@@ -37,4 +37,4 @@ is ( $key1, $key2, "ዓለም/ኣለም match." );
 
 @keys  = $mphone->metaphone ( "ጤና" );
 $key2  = $mphone->metaphone ( "ቴና" );
-is ( $keys[1], $key2, "ጤና/ቴና match." );
+is ( $keys[0], $key2, "ጤና/ቴና match." );
