@@ -38,11 +38,11 @@ __END__
 
 =head1 NAME
 
-amphone.pl - Amharic Metaphone demonstrator for 5 sample words (Basic Usage).
+amphone-high.pl - Amharic Metaphone demonstrator for 5 sample words (High Grandularity Usage).
 
 =head1 SYNOPSIS
 
-./amphone.pl
+./amphone-high.pl
 
 =head1 DESCRIPTION
 

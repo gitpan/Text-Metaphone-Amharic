@@ -38,11 +38,11 @@ __END__
 
 =head1 NAME
 
-amphone.pl - Amharic Metaphone demonstrator for 5 sample words (Basic Usage).
+ipa-phone.pl - Amharic Metaphone demonstrator for 5 sample words (IPA Basic Usage).
 
 =head1 SYNOPSIS
 
-./amphone.pl
+./ipa-phone.pl
 
 =head1 DESCRIPTION
 

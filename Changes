@@ -1,2 +1,11 @@
-0.06 Sat Apr 12 21:23:09 EDT 2003
+0.03 Tue May 20 08:08:10 EDT 2003
+	- this Changes file (forgotten in 0.02).
+	- fixed names in examples scripts.
+
+0.02 Mon May 19 11:37:03 EDT 2003
+	- added "grandularity" mode.
+	- "style" and "grandularity" can be during at import.
+	- added example scripts
+
+0.01 Sat Apr 12 21:23:09 EDT 2003
 	- initial release.
