@@ -11,7 +11,7 @@ BEGIN
 	use strict;
 	use vars qw( $VERSION %IMExpected %IMError %plosives $GRANDULARITY $STYLE );
 
-	$VERSION = "0.06";
+	$VERSION = "0.07";
 
 	%plosives = (
 		k => 'ቀ',
@@ -249,25 +249,59 @@ sub im
 {
 my ( $self, $re, @keys ) = @_;
 
+	my $first = 1;
 	#
 	#  Handle IM problems
 	#  try to keep least probable keys last:
 	#
-	$_ = $keys[0];                                       # fold upper   # bidi folding
-	my $keyboard = ( $self->{_grandularity} eq "low" ) ? qr/([ቕኝዥጥጭጽጵ])/ : qr/([ስቅቕትችንኝክዝዥጥጭጽጵፕ])/ ;
+	$_ = $keys[0];                                       # bidi folding             # upper-to-lower
+	my $keyboard = ( $self->{_grandularity} eq "high" ) ? qr/([ስቅቕትችንኝክዝዥጥጭጽጵፕ])/ : qr/([ቕኝዥጥጭጽጵ])/ ; 
+
 	while ( /$keyboard/ ) {
 		my $a = $1;
 		my @newKeys;
-		s/$a/$IMExpected{$a}/;
+		if ( $self->{_grandularity} eq "low" ) {
+			s/$a/$IMExpected{$a}/g;
+		}
+		else {
+			s/$a/$IMExpected{$a}/;
+		}
+
 		for (my $i=0; $i < @keys; $i++) {
 			$newKeys[$i] = $keys[$i];           # copy old keys
-			$keys[$i] =~ s/$a/$IMExpected{$a}/  # update old keys for primary mapping
-				if ( $self->{style} );
+			if ( $self->{style} ) {
+				# update old keys for primary mapping
+				if ( $self->{_grandularity} eq "low" ) {
+					$keys[$i] =~ s/$a/$IMExpected{$a}/g;
+				}
+				else {
+					$keys[$i] =~ s/$a/$IMExpected{$a}/;
+				}
+			}
 		}
-		$newKeys[0] =~ s/$a/ሀ$IMError{$a}->[$self->{style}]/;  # update new keys for alternative
-		for (my $i=1; $i < @newKeys; $i++) {
-			$newKeys[$i] =~ s/([^ሀ])$a/$1ሀ$IMError{$a}->[$self->{style}]/;  # update new keys for alternative
+
+		if ( $first ) {
+			# update new keys for alternative
+			$keys[0] =~ s/^$a/ሀ$a/ if ( $self->{_style} ne "ipa" );
+			if ( $self->{_grandularity} eq "low" ) {
+				$newKeys[0] =~ s/$a/ሀ$IMError{$a}->[$self->{style}]/g;
+			}
+			else {
+				$newKeys[0] =~ s/$a/ሀ$IMError{$a}->[$self->{style}]/;
+			}
 		}
+
+		for (my $i=$first; $i < @newKeys; $i++) {
+			# update new keys for alternative
+			if ( $self->{_grandularity} eq "low" ) {
+				$newKeys[$i] =~ s/([^ሀ])$a/$1ሀ$IMError{$a}->[$self->{style}]/g;
+			}
+			else {
+				$newKeys[$i] =~ s/([^ሀ])$a/$1ሀ$IMError{$a}->[$self->{style}]/;
+			}
+		}
+
+		$first = 0;
 		push (@keys,@newKeys);   # add new keys to old keys
 
 		if ( $self->{style} ) {
@@ -279,27 +313,31 @@ my ( $self, $re, @keys ) = @_;
 			}
 		}
 		else {
-			$re =~ s/$a/[$a$IMError{$a}->[$self->{style}]]/g;
+			$re =~ s/$a(?!\w?\])/[$a$IMError{$a}->[$self->{style}]]/g;
 		}
 	}
 
 
-	$re =~ s/\[\[/[/g;
-	$re =~ s/\]\]/]/g;
-	$re =~ s/\[(\w)\[/[$1/g;
-	$re =~ s/\](\w)\]/$1]/g;
-	$re =~ s/(\w)(\w)\]/($1 eq $2) ? "$1]" : "$1$2]" /eg;
+	#
+	# apparently we don't need this anymore, keep around in case we
+	# find an example again that requires it:
+	#
+	# $re =~ s/\[\[/[/g;
+	# $re =~ s/\]\]/]/g;
+	# $re =~ s/\[(\w)\[/[$1/g;
+	# $re =~ s/\](\w)\]/$1]/g;
+	# $re =~ s/(\w)(\w)\]/($1 eq $2) ? "$1]" : "$1$2]" /eg;
 
 	#
 	# convert symbols that were missed in low grandularity mode:
 	#
-	if ( $self->{style} && ($self->{_grandularity} eq "low") ) {
+	if ( $self->{style} && ($self->{_grandularity} ne "high") ) {
 		$re =~ s/([ስቅትችንክዝፕ])/$IMExpected{$1}/g;
 		foreach my $i (0..$#keys) {
 			$keys[$i] =~ s/([ስቅትችንክዝፕ])/$IMExpected{$1}/g;
 		}
 	}
-	foreach my $i (1..$#keys) {
+	foreach my $i (0..$#keys) {
 		$keys[$i] =~ s/ሀ//g;
 	}
 

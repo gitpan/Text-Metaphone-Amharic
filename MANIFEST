@@ -4,6 +4,7 @@ Makefile.PL
 README
 examples/amphone-high.pl
 examples/amphone.pl
+examples/grandularity.pl
 examples/ipa-phone-high.pl
 examples/ipa-phone.pl
 lib/Text/Metaphone/Amharic.pm
