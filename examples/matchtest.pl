@@ -229,7 +229,7 @@ __DATA__
 ጥንብ	ጥምብ
 
 
-# Type 5: Orthographic Abbreviations and Ellisions
+# Type 5: Orthographic Abbreviations and Elisions
 መልአክ	መላክ
 ሚያዝያ	ሚያዚያ
 ማርያም	ማሪያም
@@ -243,7 +243,7 @@ __DATA__
 አንባብያን	አንባቢያን
 ክርስቲያን	ክርስትያን
 ወንጌላውያን	ወንጌላዊያን
-ያማርኛ	የአምርኛ
+የአምርኛ	ያማርኛ
 
 
 # Type 6: Disjoint Labiovelars

@@ -11,7 +11,7 @@ BEGIN
 	use strict;
 	use vars qw( $VERSION %IMExpected %IMError %plosives $GRANULARITY $STYLE );
 
-	$VERSION = "0.10";
+	$VERSION = "0.11";
 
 	%plosives = (
 		ቅ => 'k',
@@ -64,7 +64,7 @@ sub import
 my ( $pkg, %args ) = @_;
 
 	$STYLE       = lc($args{style})        if ( $args{style}       );
-	$GRANULARITY = lc($args{granularity})  if ( $args_{granularity} );
+	$GRANULARITY = lc($args{granularity})  if ( $args{granularity} );
 }
 
 
@@ -267,7 +267,11 @@ my ( $self, $re, @keys ) = @_;
 		$first = 0;
 		push (@keys,@newKeys);   # add new keys to old keys
 
-		$re =~ s/$a(?!\w+?\])/[$a$IMError{$a}]/g;
+		# 
+		# this still needs work: 
+		# 
+		# $re =~ s/$a(?!\w+?\])/[$a$IMError{$a}]/g;
+		$re =~ s/(?<!\[\w)$a(?!\w+?\])/[$a$IMError{$a}]/g;
 	}
 
 	#
@@ -472,7 +476,7 @@ Daniel Yacob,  L<dyacob@cpan.org|mailto:dyacob@cpan.org>
 
 =head1 SEE ALSO
 
-=item L<http://daniel.yacob.name/papers/ICESXV.pdf>
+=item L<http://daniel.yacob.name/papers/DanielYacob-ICESXV.pdf>
 
 =item L<Text::TransMetaphone>
 
