@@ -2,5 +2,9 @@ Changes
 MANIFEST
 Makefile.PL
 README
+examples/amphone-high.pl
+examples/amphone.pl
+examples/ipa-phone-high.pl
+examples/ipa-phone.pl
 lib/Text/Metaphone/Amharic.pm
 t/01phones.t

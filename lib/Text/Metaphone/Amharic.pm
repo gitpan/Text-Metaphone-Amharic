@@ -9,11 +9,9 @@ use Regexp::Ethiopic::Amharic qw(:forms overload setForm);
 BEGIN
 {
 	use strict;
-	use vars qw( $VERSION $LocaleRange %IMExpected %IMError %plosives );
+	use vars qw( $VERSION %IMExpected %IMError %plosives $GRANDULARITY $STYLE );
 
-	$VERSION = '0.01';
-
-	$LocaleRange = qr/[ሀ-ቍበ-ኾዐ-ዷጀ-ጕጠ-፼]/;
+	$VERSION = '0.02';
 
 	%plosives = (
 		k => 'ቀ',
@@ -54,23 +52,32 @@ BEGIN
 		ጵ => [ "ፕ", "p"  ],
 		ፕ => [ "ጵ", "p'" ]
 	);
+	$GRANDULARITY = "low";
+	$STYLE       = "ethio";
+}
+
+
+sub import
+{
+my ( $pkg, %args ) = @_;
+
+	$STYLE        = lc($args{style})        if ( $args{style}         );
+	$GRANDULARITY = lc($args{grandularity}) if ( $args_{grandularity} );
 }
 
 
 sub new
 {
 my $class = shift;
-my $self = {};
+my $self = { style => 0, _style => $STYLE, _grandularity => $GRANDULARITY };
 
 	my $blessing = bless ( $self, $class );
 
-	$self->{style} = ( @_ && ($_[0] =~ /ipa/i) ) ? 1 : 0 ;
-	# $self->{style} = ( @_ && ($_[0] =~ /ascii/i) )
-	#  ? 2
-	#  : ( @_ && ($_[0] =~ /ipa/i) )
-	#    ? 1
-	#    : 0
-	# ;
+	%_ = @_;
+
+	$self->{_grandularity} = lc($_{grandularity}) if ( $_{grandularity}        );
+	$self->{_style}        = lc($_{style})        if ( $_{style}               );
+	$self->{style}         = 1                    if ( $self->{_style} eq "ipa" );
 
 	$blessing;
 }
@@ -85,7 +92,7 @@ my $self = shift;
 	($re, @keys)    = $self->phono  ( $re, @keys );
 	($re, @keys)    = $self->im     ( $re, @keys );
 
-	if ( $#keys ) {
+	if ( @keys ) {
 		push ( @keys, qr/$re/ );	
 	}
 
@@ -137,7 +144,7 @@ my $self = shift;
 
 	if ( $self->{style} ) {
 	#
-	#  Confustion with ዽ
+	#  Confusion with ዽ
 	#
 	if ( $keys[0] =~ /ዽ/ ) {
 		$keys[2] = $keys[1] = $keys[0];
@@ -147,7 +154,7 @@ my $self = shift;
 		$re =~ s/ዽ/([dɗ]|p')/g;
 	}
 	#
-	#  Confustion with ኘ
+	#  Confusion with ኘ
 	#
 	if ( $keys[0] =~ /ኘ/ ) {
 		my (@newKeysA, @newKeysB);
@@ -164,7 +171,7 @@ my $self = shift;
 	#
 	} else {
 	#
-	#  Confustion with ዽ
+	#  Confusion with ዽ
 	#
 	if ( $keys[0] =~ /ዽ/ ) {
 		$keys[2] = $keys[1] = $keys[0];
@@ -174,7 +181,7 @@ my $self = shift;
 		$re =~ s/ዽ/([ድዽጵ])/g;
 	}
 	#
-	#  Confustion with ኘ
+	#  Confusion with ኘ
 	#
 	if ( $keys[0] =~ /ኘ/ ) {
 		my (@newKeysA, @newKeysB);
@@ -234,13 +241,13 @@ sub im
 {
 my ( $self, $re, @keys ) = @_;
 
-
 	#
 	#  Handle IM problems
 	#  try to keep least probable keys last:
 	#
-	$_ = $keys[0];
-	while ( /([ስቅቕትችንክዝዥጥጭጽጵፕ])/ ) {
+	$_ = $keys[0];                                       # fold upper   # bidi folding
+	my $keyboard = ( $self->{_grandularity} eq "low" ) ? qr/[ቕዥጥጭጽጵ]/ : qr/[ስቅቕትችንክዝዥጥጭጽጵፕ]/ ;
+	while ( /($keyboard)/ ) {
 		my $a = $1;
 		my @newKeys;
 		# print "NOW<$a>: $_\n";
@@ -256,7 +263,7 @@ my ( $self, $re, @keys ) = @_;
 			$newKeys[$i] =~ s/([^ሀ])$a/$1ሀ$IMError{$a}->[$self->{style}]/;  # update new keys for alternative
 			# print "    $newKeys[$i]\n";
 		}
-		push (@keys,@newKeys);  # add new keys to old keys
+		push (@keys,@newKeys);   # add new keys to old keys
 
 		if ( $self->{style} ) {
 			if ( $plosives{$IMExpected{$a}} || $plosives{$IMError{$a}} ) {
@@ -267,7 +274,18 @@ my ( $self, $re, @keys ) = @_;
 			}
 		}
 		else {
-			$re =~ s/$a/$a$IMError{$a}->[$self->{style}]/g;
+			$re =~ s/$a/[$a$IMError{$a}->[$self->{style}]]/g;
+		}
+	}
+
+
+	#
+	# convert symbols that were missed in low grandularity mode:
+	#
+	if ( $self->{style} && ($self->{_grandularity} eq "low") ) {
+		$re =~ s/([ስቅትችንክዝፕ])/$IMExpected{$1}/g;
+		foreach my $i (0..$#keys) {
+			$keys[$i] =~ s/([ስቅትችንክዝፕ])/$IMExpected{$1}/g;
 		}
 	}
 	foreach my $i (1..$#keys) {
@@ -298,10 +316,22 @@ sub style
 {
 my $self = shift;
 
-	$self->{style} = ( ($_[0] =~ /ipa/i) ) ? 1 : 0
-		if (@_);
+	if (@_) {
+		$self->{_style} = lc($_[0]);
+		$self->{style} = ( ($_[0] =~ /ipa/i) ) ? 1 : 0
+	}
 
-	$self->{style};
+	$self->{_style};
+}
+
+
+sub grandularity
+{
+my $self = shift;
+
+	$self->{_grandularity} = lc($_[0]) if (@_);
+
+	$self->{_grandularity};
 }
 
 
@@ -348,26 +378,41 @@ Text::Metaphone::Amharic - The Metaphone Algorithm for Amharic.
     :
     :
 
+  
+  The key "style" and Metaphone "grandularity" can be set at import time:
+
+    use Text::Metaphone::Amharic ( style => "ipa", grandularity => "high" );
+
+  at instantiation time:
+
+    my $mphone = new Text::Metaphone::Amharic ( style => "ipa", grandularity => "high" );
+
+  or anytime there after:
+
+    $mphone->style ( "ethiopic" );
+    $mphone->grandularity ( "low" );
+
 =head1 DESCRIPTION
 
 The Text::Metaphone::Amharic module is a reimplementation of the Amharic
 Metaphone algorithm of the L<Text::TransMetaphone> package.  This implementation
 uses an object oriented interface and will generate keys in Ethiopic script by
-default.  IPA keys remain available and may be set at instantiation time or
-afterwards with the "style" method.
+default.  IPA keys remain available and may be set at instantiation or import time
+or afterwards with the "style" method.
+
+By default the keys are generated in "low" grandularity mode.  The grandularity
+setting effects only how the keys for input method errors are generated.  In "high"
+grandularity mode a key is returned for every possibly permutation, per key, in
+the substitutions of upper for lower and lower for upper mistrikes.  In the default
+"low" grandularity mode a single key representing the "lowest common denominator"
+of the "high" mode keys is generated.
 
 Like L<Text::TransMetaphone::am> the terminal key returned under list context is a
 regular expression.  Amharic character classes will be applied in the RE key
 as per the conventions of L<Regexp::Ethiopic::Amharic>.
 
-
 A C<reverse_key_ipa> method is also provided to convert an IPA symbol key into  
 a regular expression that would phonological sequence under Amharic orthography.
-
-=head1 STATUS
-
-The Amharic module has awareness of common mispelling in Amharic, perhaps too
-much awareness, the module will produce a high number of keys.
 
 =head1 REQUIRES
 
@@ -384,10 +429,15 @@ None presently known.
 
 =head1 AUTHOR
 
-Daniel Yacob,  L<Yacob@EthiopiaOnline.Net|mailto:Yacob@EthiopiaOnline.Net>
+Daniel Yacob,  L<dyacob@cpan.org|mailto:dyacob@cpan.org>
 
 =head1 SEE ALSO
 
 L<Text::TransMetaphone>
+
+Included with this package:
+
+  examples/amphone.pl         examples/ipa-phone.pl
+  examples/amphone-high.pl    examples/ipa-phone-high.pl
 
 =cut

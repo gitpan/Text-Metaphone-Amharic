@@ -3,7 +3,7 @@ use ExtUtils::MakeMaker;
 # the contents of the Makefile that is written.
 WriteMakefile(
 	'NAME'		=> 'Text-Metaphone-Amharic',
-	'VERSION_FROM'	=> 'lib/Text/Metaphone/Amharic.pm', # finds $VERSION
+	'VERSION_FROM'	=> 'lib/Text/Metaphone/Amharic.pm',
 	dist		=>	{ 
 		COMPRESS	=>	"gzip -9f",
 		SUFFIX		=>	"gz",
