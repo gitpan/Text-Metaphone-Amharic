@@ -16,7 +16,7 @@ results than the alternatives.  What alternatives? :-)  The
 only somewhat sensible comparison would be to transliterate
 Amharic into an ASCII system and apply the DoubleMetaphone
 to the converted words.  Results for 4 transliteration systems
-are as follows:
+are as follows ("low" granularity setting):
 
 
 Text::Metaphone::Amharic (Ethiopic)

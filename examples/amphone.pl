@@ -47,7 +47,7 @@ amphone.pl - Amharic Metaphone demonstrator for 5 sample words (Basic Usage).
 =head1 DESCRIPTION
 
 This is a simple demonstration script that generates Amharic Metaphone
-keys in Ethiopic script under the default "low" grandularity setting.
+keys in Ethiopic script under the default "low" granularity setting.
 
 =head1 AUTHOR
 

@@ -4,9 +4,9 @@ use strict;
 use utf8;
 use Text::Metaphone::Amharic ( style => "ipa" );
 
-my $am = new Text::Metaphone::Amharic; # or w/ ( grandularity => high );
+my $am = new Text::Metaphone::Amharic; # or w/ ( granularity => high );
 
-$am->grandularity ( "high" );
+$am->granularity ( "high" );
 
 my @keys  = $am->metaphone ( "ኘሬዚደንት" );
 my $count = 0;
@@ -40,7 +40,7 @@ __END__
 
 =head1 NAME
 
-ipa-phone-high.pl - Amharic Metaphone demonstrator for 5 sample words (IPA High Grandularity Usage).
+ipa-phone-high.pl - Amharic Metaphone demonstrator for 5 sample words (IPA High Granularity Usage).
 
 =head1 SYNOPSIS
 
@@ -49,7 +49,7 @@ ipa-phone-high.pl - Amharic Metaphone demonstrator for 5 sample words (IPA High 
 =head1 DESCRIPTION
 
 This is a simple demonstration script that generates Amharic Metaphone
-keys in IPA symbols under the "high" grandularity setting.
+keys in IPA symbols under the "high" granularity setting.
 
 =head1 AUTHOR
 

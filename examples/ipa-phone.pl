@@ -47,7 +47,7 @@ ipa-phone.pl - Amharic Metaphone demonstrator for 5 sample words (IPA Basic Usag
 =head1 DESCRIPTION
 
 This is a simple demonstration script that generates Amharic Metaphone
-keys in IPA symbols under the default "low" grandularity setting.
+keys in IPA symbols under the default "low" granularity setting.
 
 =head1 AUTHOR
 

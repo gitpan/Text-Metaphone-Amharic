@@ -30,9 +30,9 @@ main:
 {
 my (@cPhones, $can, @list, @ePhones, $count, $match, $innerMatch, $type, $outer);
 
-my $grandularity = ( @ARGV ) ? $ARGV[0] : "low" ;
+my $granularity = ( @ARGV ) ? $ARGV[0] : "low" ;
 
-my $am = new Text::Metaphone::Amharic ( grandularity => $grandularity );
+my $am = new Text::Metaphone::Amharic ( granularity => $granularity );
 
 my (@Matches, @Misses);
 my ($counter, $errors, $matches) = (0,0,0);
@@ -114,7 +114,7 @@ print "$counter words matched $matches of $errors error words.\n";
 
 =head1 NAME
 
-matchtest.pl - Amharic Metaphone demonstrator for 5 sample words (Basic Usage).
+matchtest.pl - Amharic Metaphone demonstrator for 116 sample words.
 
 =head1 SYNOPSIS
 
@@ -123,8 +123,8 @@ matchtest.pl - Amharic Metaphone demonstrator for 5 sample words (Basic Usage).
 =head1 DESCRIPTION
 
 This is a simple demonstration script that compares the Amharic Metaphone keys
-generated for 115 sample words compared against 165 errors.  Comparisons of
-canonical vs error keys stop upon the first match.  The "grandulariy" can be
+generated for 116 sample words compared against 166 errors.  Comparisons of
+canonical vs error keys stop upon the first match.  The "granulariy" can be
 set at the command line to examine the impact on matching ("low" level is the
 default).  Matches are not expected in all cases.
 

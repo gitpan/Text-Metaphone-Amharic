@@ -4,7 +4,7 @@ Makefile.PL
 README
 examples/amphone-high.pl
 examples/amphone.pl
-examples/grandularity.pl
+examples/granularity.pl
 examples/ipa-phone-high.pl
 examples/ipa-phone.pl
 examples/matchtest.pl

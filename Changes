@@ -1,3 +1,9 @@
+0.09 Tue Jun  3 08:53:40 EDT 2003
+	- added the "o" optimizer everywhere applicable,
+	  lets hope this doesn't break anything.
+	- changed "grandularity" to "granularity" everywhere.
+	- documentation fixes.
+
 0.08 Sun Jun 1 10:51:20 EDT 2003
 	- moved IPA code into new _formatStyle method.
 	- added SERA "style" option.
