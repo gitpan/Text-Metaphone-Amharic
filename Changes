@@ -1,7 +1,14 @@
+0.08 Sun Jun 1 10:51:20 EDT 2003
+	- moved IPA code into new _formatStyle method.
+	- added SERA "style" option.
+	- enhanced documentation.
+	- added examples/matchtest.pl.
+
 0.07 Fri May 30 07:57:23 EDT 2003
 	- added "medium" grandularity.
 	- fixed grandularity bugs.
 	- enhanced regex key generation.
+	- added examples/grandularity.pl.
 
 0.06 Fri May 23 12:11:07 EDT 2003
 	- added  "v" ->  "b" mapping.

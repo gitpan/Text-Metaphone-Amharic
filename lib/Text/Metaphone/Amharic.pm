@@ -11,14 +11,14 @@ BEGIN
 	use strict;
 	use vars qw( $VERSION %IMExpected %IMError %plosives $GRANDULARITY $STYLE );
 
-	$VERSION = "0.07";
+	$VERSION = "0.08";
 
 	%plosives = (
-		k => 'ቀ',
-		t => 'ጠ',
-		ʧ => 'ጨ',
-		s => 'ጸ',
-		p => 'ጰ',
+		ቅ => 'k',
+		ጥ => 't',
+		ጭ => 'ʧ',
+		ጵ => 'p',
+		ጽ => 's'
 	);
 	%IMExpected =(
 		ስ => "s",
@@ -38,21 +38,21 @@ BEGIN
 		ፕ => "p"
 	);
 	%IMError  =(
-		ስ => [ "ጽ", "s'" ],
-		ጽ => [ "ስ", "s"  ],
-		ቅ => [ "ቕ", "q"  ],
-		ቕ => [ "ቅ", "k'" ],
-		ት => [ "ጥ", "t'" ],
-		ጥ => [ "ት", "t"  ],
-		ች => [ "ጭ", "ʧ'" ],
-		ጭ => [ "ች", "ʧ"  ],
-		ን => [ "ኝ", "ɲ"  ],
-		ኝ => [ "ን", "n"  ],
-		ክ => [ "ኽ", "x"  ],
-		ዝ => [ "ዥ", "ʒ"  ],
-		ዥ => [ "ዝ", "z"  ],
-		ጵ => [ "ፕ", "p"  ],
-		ፕ => [ "ጵ", "p'" ]
+		ስ => "ጽ",
+		ጽ => "ስ",
+		ቅ => "ቕ",
+		ቕ => "ቅ",
+		ት => "ጥ",
+		ጥ => "ት",
+		ች => "ጭ",
+		ጭ => "ች",
+		ን => "ኝ",
+		ኝ => "ን",
+		ክ => "ኽ",
+		ዝ => "ዥ",
+		ዥ => "ዝ",
+		ጵ => "ፕ",
+		ፕ => "ጵ"
 	);
 	$GRANDULARITY = "low";
 	$STYLE       = "ethio";
@@ -71,17 +71,35 @@ my ( $pkg, %args ) = @_;
 sub new
 {
 my $class = shift;
-my $self = { style => 0, _style => $STYLE, _grandularity => $GRANDULARITY };
+my $self = { _style => $STYLE, _grandularity => $GRANDULARITY };
 
 	my $blessing = bless ( $self, $class );
 
 	%_ = @_;
 
-	$self->{_grandularity} = lc($_{grandularity}) if ( $_{grandularity}        );
-	$self->{_style}        = lc($_{style})        if ( $_{style}               );
-	$self->{style}         = 1                    if ( $self->{_style} eq "ipa" );
+	$self->{_style}        = lc($_{style})        if ( $_{style}        );
+	$self->{_grandularity} = lc($_{grandularity}) if ( $_{grandularity} );
 
 	$blessing;
+}
+
+
+sub _formatStyle
+{
+my ($self, $keys) = @_;
+
+	if ( $self->{_style} eq "ipa" ) {
+		foreach my $i ( 0..$#{$keys} ) {
+			$keys->[$i] =~ s/([ቅጥጭጵጽ])/$plosives{$1}'/g;
+			$keys->[$i] =~ tr/ህልምርስሽቕብትችንኝእክውይድዽጅዝዥግጝፍፕ/hlmrsʃqbtʧnɲakwjdɗʤzʒgɲfp/;
+		}
+	}
+	elsif ( $self->{_style} eq "sera" ) {
+		foreach my $i ( 0..$#{$keys} ) {
+			$keys->[$i] =~ tr/ህልምርስሽቅቕብትችንኝእክውይድዽጅዝዥግጝጥጭጵጽፍፕ/hlmrsxqQbtcnNakwydDjzZgGTCPSfp/;
+		}
+	}
+
 }
 
 
@@ -98,6 +116,8 @@ my $self = shift;
 		push ( @keys, qr/$re/ );	
 	}
 
+	$self->_formatStyle ( \@keys ) if ( $self->{_style} ne "ethio" );
+
 	(wantarray) ? @keys : $keys[0];
 }
 
@@ -111,17 +131,18 @@ my $self = shift;
 	#
 	# strip out all but first vowel:
 	#
-	if ( $self->{style} ) {
-		s/^[=#አ#=]/a/;
-		s/[=#ሀ#=]/h/g;
-	}
-	else {
-		s/^[=#አ#=]/አ/;
-		s/[=#ሀ#=]/ሀ/g;
-	}
+	s/^[=#አ#=]/አ/;
+	s/[=#ሀ#=]/ሀ/g;
 
 	s/(.)[=#አ#=]/$1/g;
-	s/([#11#])/setForm($1,$ሳድስ)."ዋ"/eg;
+
+	if ( $self->{_grandularity} eq "low" ) {
+		s/(.)[#ወ#]/$1/g;
+		s/(.)[#የ#]/$1/g;
+	}
+	else {
+		s/([#11#])/setForm($1,$ሳድስ)."ዋ"/eg;
+	}
 	s/[=#ሰ#=]/ሰ/g;
 	s/[=#ጸ#=]/ጸ/g;
 	s/[#ቨ#]/በ/g;
@@ -129,10 +150,8 @@ my $self = shift;
 	#
 	# now strip vowels, this simplies later code:
 	#
-	s/(\p{InEthiopic})/ ($1 eq 'ኘ') ? $1 : setForm($1,$ሳድስ)/eg;
+	s/(\p{Ethiopic})/ ($1 eq 'ኘ') ? $1 : setForm($1,$ሳድስ)/eg;
 
-	# tr/ልምርሽብቭውይድጅግፍ/lmrʃbvwjdʤgf/ if ( $self->{style} );
-	tr/ልምርሽብቭውይድጅግፍ/lmrʃbbwjdʤgf/ if ( $self->{style} );
 
 	$_;
 }
@@ -146,34 +165,6 @@ my $self = shift;
 	my @keys = ( $_[0] );
 	my $re = $_[0];
 
-	if ( $self->{style} ) {
-	#
-	#  Confusion with ዽ
-	#
-	if ( $keys[0] =~ /ዽ/ ) {
-		$keys[2] = $keys[1] = $keys[0];
-		$keys[0] =~ s/ዽ/d/;    # caps problem
-		$keys[1] =~ s/ዽ/ɗ/;    # literal
-		$keys[2] =~ s/ዽ/p'/;   # mistaken glyph
-		$re =~ s/ዽ/([dɗ]|p')/g;
-	}
-	#
-	#  Confusion with ኘ
-	#
-	if ( $keys[0] =~ /ኘ/ ) {
-		my (@newKeysA, @newKeysB);
-		for (my $i=0; $i < @keys; $i++) {
-			$newKeysA[$i] = $newKeysB[$i] = $keys[$i];  # copy old keys
-			$keys[$i]     =~ s/ኘ/ɲ/;    # literal
-			$newKeysA[$i] =~ s/ኘ/n/;    # caps problem
-			$newKeysB[$i] =~ s/ኘ/p/;    # mistaken glyph
-		}
-		push (@keys,@newKeysA);  # add new keys to old keys
-		push (@keys,@newKeysB);  # add new keys to old keys
-		$re =~ s/ኘ/[nɲp]/g;
-	}
-	#
-	} else {
 	#
 	#  Confusion with ዽ
 	#
@@ -197,10 +188,8 @@ my $self = shift;
 		}
 		push (@keys,@newKeysA);  # add new keys to old keys
 		push (@keys,@newKeysB);  # add new keys to old keys
-		$re =~ s/ኘ/[ኘንፕ]/g;
+		$re =~ s/ኘ/[ንኝፕ]/g;
 	}
-	#
-	}  # end if ( $self->{sytle} )
 
 	($re, @keys);
 }
@@ -211,34 +200,17 @@ sub phono
 my ( $self, $re, @keys ) = @_;
 
 
-	if ( $self->{style} ) {
-		#
-		#  handle phonological problems
-		#
-		if ( $keys[0] =~ /m[bf]/ ) {
-			my @newKeys;
-			for (my $i=0; $i < @keys; $i++) {
-				$newKeys[$i] = $keys[$i];  # copy old keys
-				$newKeys[$i] =~ s/mb/nb/;  # update old keys for primary mapping
-				$newKeys[$i] =~ s/mf/nf/;  # update old keys for primary mapping
-			}
-			push (@keys,@newKeys);  # add new keys to old keys
-			$re =~ s/mb/[mn]b/g;
-			$re =~ s/mb/[mn]f/g;
-		}
-	} else {
 
-		if ( $keys[0] =~ /ም[ብፍ]/ ) {
-			my @newKeys;
-			for (my $i=0; $i < @keys; $i++) {
-				$newKeys[$i] = $keys[$i];  # copy old keys
-				$newKeys[$i] =~ s/ምብ/ንብ/;  # update old keys for primary mapping
-				$newKeys[$i] =~ s/ምፍ/ንፍ/;  # update old keys for primary mapping
-			}
-			push (@keys,@newKeys);  # add new keys to old keys
-			$re =~ s/ምብ/[ምን]ብ/g;
-			$re =~ s/ምፍ/[ምን]ፍ/g;
+	if ( $keys[0] =~ /ም[ብፍ]/ ) {
+		my @newKeys;
+		for (my $i=0; $i < @keys; $i++) {
+			$newKeys[$i] = $keys[$i];  # copy old keys
+			$newKeys[$i] =~ s/ምብ/ንብ/;  # update old keys for primary mapping
+			$newKeys[$i] =~ s/ምፍ/ንፍ/;  # update old keys for primary mapping
 		}
+		push (@keys,@newKeys);  # add new keys to old keys
+		$re =~ s/ምብ/[ምን]ብ/g;
+		$re =~ s/ምፍ/[ምን]ፍ/g;
 	}
 
 	($re, @keys);
@@ -269,93 +241,60 @@ my ( $self, $re, @keys ) = @_;
 
 		for (my $i=0; $i < @keys; $i++) {
 			$newKeys[$i] = $keys[$i];           # copy old keys
-			if ( $self->{style} ) {
-				# update old keys for primary mapping
-				if ( $self->{_grandularity} eq "low" ) {
-					$keys[$i] =~ s/$a/$IMExpected{$a}/g;
-				}
-				else {
-					$keys[$i] =~ s/$a/$IMExpected{$a}/;
-				}
-			}
 		}
 
 		if ( $first ) {
 			# update new keys for alternative
 			$keys[0] =~ s/^$a/ሀ$a/ if ( $self->{_style} ne "ipa" );
 			if ( $self->{_grandularity} eq "low" ) {
-				$newKeys[0] =~ s/$a/ሀ$IMError{$a}->[$self->{style}]/g;
+				$newKeys[0] =~ s/$a/ሀ$IMError{$a}/g;
 			}
 			else {
-				$newKeys[0] =~ s/$a/ሀ$IMError{$a}->[$self->{style}]/;
+				$newKeys[0] =~ s/$a/ሀ$IMError{$a}/;
 			}
 		}
 
 		for (my $i=$first; $i < @newKeys; $i++) {
 			# update new keys for alternative
 			if ( $self->{_grandularity} eq "low" ) {
-				$newKeys[$i] =~ s/([^ሀ])$a/$1ሀ$IMError{$a}->[$self->{style}]/g;
+				$newKeys[$i] =~ s/([^ሀ])$a/$1ሀ$IMError{$a}/g;
 			}
 			else {
-				$newKeys[$i] =~ s/([^ሀ])$a/$1ሀ$IMError{$a}->[$self->{style}]/;
+				$newKeys[$i] =~ s/([^ሀ])$a/$1ሀ$IMError{$a}/;
 			}
 		}
 
 		$first = 0;
 		push (@keys,@newKeys);   # add new keys to old keys
 
-		if ( $self->{style} ) {
-			if ( $plosives{$IMExpected{$a}} || $plosives{$IMError{$a}} ) {
-				$re =~ s/$a/($IMExpected{$a}|$IMError{$a}->[$self->{style}])/g;
-			}
-			else {
-				$re =~ s/$a/[$IMExpected{$a}$IMError{$a}->[$self->{style}]]/g;
-			}
-		}
-		else {
-			$re =~ s/$a(?!\w?\])/[$a$IMError{$a}->[$self->{style}]]/g;
-		}
+		$re =~ s/$a(?!\w+?\])/[$a$IMError{$a}]/g;
 	}
-
-
-	#
-	# apparently we don't need this anymore, keep around in case we
-	# find an example again that requires it:
-	#
-	# $re =~ s/\[\[/[/g;
-	# $re =~ s/\]\]/]/g;
-	# $re =~ s/\[(\w)\[/[$1/g;
-	# $re =~ s/\](\w)\]/$1]/g;
-	# $re =~ s/(\w)(\w)\]/($1 eq $2) ? "$1]" : "$1$2]" /eg;
 
 	#
 	# convert symbols that were missed in low grandularity mode:
 	#
-	if ( $self->{style} && ($self->{_grandularity} ne "high") ) {
-		$re =~ s/([ስቅትችንክዝፕ])/$IMExpected{$1}/g;
-		foreach my $i (0..$#keys) {
-			$keys[$i] =~ s/([ስቅትችንክዝፕ])/$IMExpected{$1}/g;
-		}
-	}
 	foreach my $i (0..$#keys) {
 		$keys[$i] =~ s/ሀ//g;
+		$keys[$i] =~ s/ኘ/ኝ/g;
 	}
 
 	($re, @keys);
 }
 
 
-sub reverse_ipa_key
+sub reverse
 {
 my $self = shift;
 
 	$_ = $_[0];
 	
-	s/([stʧkp])'/$plosives{$1}/g;
-	tr/hlmrsʃqbvtʧnɲakwjdɗʤzʒgɲfp/ሀለመረሰሸቐበቨተቸነኘአከወየደዸጀዘዠገጘፈፐ/;
-	s/(\p{InEthiopic})/[#$1#]/g;
-	s/ዸ/ደዸ/g;
-	s/ጘ/ገጘ/g;
+	if ( $self->{_style} eq "ipa" ) {
+		s/([stʧkp])'/$plosives{$1}/g;
+		tr/hlmrsʃqbtʧnɲakwjdɗʤzʒgɲfp/ህልምርስሽቕብትችንኝእክውይድዽጅዝዥግጝፍፕ/;
+	}
+	elsif ( $self->{_style} eq "sera" ) {
+		tr/hlmrsxqQbtcnNakwydDjzZgTCPSGfp/ህልምርስሽቅቕብትችንኝእክውይድዽጅዝዥግጝጥጭጵጽፍፕ/;
+	}
 
 	$_;
 }
@@ -365,10 +304,7 @@ sub style
 {
 my $self = shift;
 
-	if (@_) {
-		$self->{_style} = lc($_[0]);
-		$self->{style} = ( ($_[0] =~ /ipa/i) ) ? 1 : 0
-	}
+	$self->{_style} = lc($_[0]) if (@_);
 
 	$self->{_style};
 }
@@ -446,22 +382,76 @@ Text::Metaphone::Amharic - The Metaphone Algorithm for Amharic.
 The Text::Metaphone::Amharic module is a reimplementation of the Amharic
 Metaphone algorithm of the L<Text::TransMetaphone> package.  This implementation
 uses an object oriented interface and will generate keys in Ethiopic script by
-default.  IPA keys remain available and may be set at instantiation or import time
-or afterwards with the "style" method.
+default (see the L<STYLES> section for other encoding options).
 
-By default the keys are generated in "low" grandularity mode.  The grandularity
-setting effects only how the keys for input method errors are generated.  In "high"
-grandularity mode a key is returned for every possibly permutation, per key, in
-the substitutions of upper for lower and lower for upper mistrikes.  In the default
-"low" grandularity mode a single key representing the "lowest common denominator"
-of the "high" mode keys is generated.
+By default the keys are generated in "low" grandularity mode wich finds the
+most matches.  The L<GRANDULARITY> section discusses the effects of the
+different levels.
 
-Like L<Text::TransMetaphone::am> the terminal key returned under list context is a
-regular expression.  Amharic character classes will be applied in the RE key
-as per the conventions of L<Regexp::Ethiopic::Amharic>.
 
-A C<reverse_key_ipa> method is also provided to convert an IPA symbol key into  
-a regular expression that would phonological sequence under Amharic orthography.
+Like L<Text::TransMetaphone::am> the terminal key returned under list context
+is a regular expression.  Amharic character classes will be applied in the RE
+key as per the conventions of L<Regexp::Ethiopic::Amharic>.
+
+
+=head2 GRANDULARITY
+
+The grandularity parameter refers to the degree of reduction that occurs
+in the key generation.  The grandularity modes were created for investigative
+purpoes.  The most effective "low" level mode is the default.
+
+=head3 "high"
+
+The least coarse grain.  "ወ" and "የ" are treated under consonant rules.
+rules, that is stripped out of the string except as the first char.  The
+default IM correction (shift-slip condition) folds keys both upward and
+downward only.  The high grandularity level generates the greatest number
+of keys.  Each substitution causes a new key to be generated so that the
+set of keys returned represent all possible permutations.  The "high"
+level is the least aggressive in terms of text simplification
+and leads to the fewest matches.  The "high" level is more useful for another
+types of analysis, such as distance comparison to the canonical word.  Since
+both the canonical and error words have keys folded downward for all
+grandularity levels during IM corrections, there is no particular advantage to
+the "high" level for the purpose of matching.
+
+=head3 "medium"
+
+An in between grain.  "ወ" and "የ" are treated under consonant rules.
+The default IM correction folds keys downward only.  The keys generated
+represent a "lowest common denominator" that would be reducible from the
+"high" mode keys.  More matches will be found at the lowest grandularity
+level, but the risk of false matches becomes higher.
+
+=head3 "low"
+
+The default and most coarse, or agressive, grain.  "ወ" and "የ" are treated
+under vowel rules, that is stripped out of the string except as the first char.
+Like the medium level, the default IM correction folds keys downward only and
+the keys again are lowest common denominators of "high" mode keys.
+More matches will be found at the lowest grandularity level, but the risk of
+false matches becomes higher.
+
+=head2 STYLES
+
+By default keys are returned with Ethiopic characters (UTF-8 encoding).  If
+this is not your text "style" of choice, IPA symbols and SERA transliteration
+are also available.  The text style can be set and reset at any time:
+
+=head3 At Import Time:
+
+  use Text::Amharic::Metaphone qw( style => "ipa" );
+
+=head3 At Instantiation Time:
+
+  my $mphone = new Text::Amharic::Metaphone ( style => "sera" );
+
+=head3 After Instantiation:
+
+  $mphone->style ( "ethio" );
+
+A C<reverse> method is also provided to convert an IPA or SERA symbol key into  
+an equivalent Ethiopic sequence.
 
 =head1 REQUIRES
 
@@ -488,5 +478,6 @@ Included with this package:
 
   examples/amphone.pl         examples/ipa-phone.pl
   examples/amphone-high.pl    examples/ipa-phone-high.pl
+  examples/grandularity.p     examples/matchtest.pl
 
 =cut

@@ -33,7 +33,7 @@ __END__
 
 =head1 NAME
 
-amphone.pl - Amharic Metaphone demonstrator grandularity levels.
+grandularity.pl - Amharic Metaphone demonstrator grandularity levels.
 
 =head1 SYNOPSIS
 
