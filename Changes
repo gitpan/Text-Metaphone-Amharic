@@ -1,3 +1,6 @@
+0.10 Sun Oct 26 06:12 EDT 2003
+	- documentation tweaks only -thanks Mike Castle!
+
 0.09 Tue Jun  3 08:53:40 EDT 2003
 	- added the "o" optimizer everywhere applicable,
 	  lets hope this doesn't break anything.

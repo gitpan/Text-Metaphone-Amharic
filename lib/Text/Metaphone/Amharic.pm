@@ -11,7 +11,7 @@ BEGIN
 	use strict;
 	use vars qw( $VERSION %IMExpected %IMError %plosives $GRANULARITY $STYLE );
 
-	$VERSION = "0.09";
+	$VERSION = "0.10";
 
 	%plosives = (
 		ቅ => 'k',
@@ -64,7 +64,7 @@ sub import
 my ( $pkg, %args ) = @_;
 
 	$STYLE       = lc($args{style})        if ( $args{style}       );
-	$GRANULARITY = lc($args{granularity}) if ( $args_{granularity} );
+	$GRANULARITY = lc($args{granularity})  if ( $args_{granularity} );
 }
 
 
@@ -78,7 +78,7 @@ my $self = { _style => $STYLE, _granularity => $GRANULARITY };
 	%_ = @_;
 
 	$self->{_style}        = lc($_{style})        if ( $_{style}     );
-	$self->{_granularity} = lc($_{granularity}) if ( $_{granularity} );
+	$self->{_granularity}  = lc($_{granularity})  if ( $_{granularity} );
 
 	$blessing;
 }
@@ -182,7 +182,7 @@ my $self = shift;
 		my (@newKeysA, @newKeysB);
 		for (my $i=0; $i < @keys; $i++) {
 			$newKeysA[$i] = $newKeysB[$i] = $keys[$i];  # copy old keys
-			                            # $keys[$i] literal
+			                             # $keys[$i] literal
 			$newKeysA[$i] =~ s/ኘ/ን/o;    # caps problem
 			$newKeysB[$i] =~ s/ኘ/ፕ/o;    # mistaken glyph
 		}
@@ -204,7 +204,7 @@ my ( $self, $re, @keys ) = @_;
 	if ( $keys[0] =~ /ም[ብፍ]/ ) {
 		my @newKeys;
 		for (my $i=0; $i < @keys; $i++) {
-			$newKeys[$i] = $keys[$i];  # copy old keys
+			$newKeys[$i] = $keys[$i];   # copy old keys
 			$newKeys[$i] =~ s/ምብ/ንብ/o;  # update old keys for primary mapping
 			$newKeys[$i] =~ s/ምፍ/ንፍ/o;  # update old keys for primary mapping
 		}
@@ -440,11 +440,11 @@ are also available.  The text style can be set and reset at any time:
 
 =head3 At Import Time:
 
-  use Text::Amharic::Metaphone qw( style => "ipa" );
+  use Text::Metaphone::Amharic qw( style => "ipa" );
 
 =head3 At Instantiation Time:
 
-  my $mphone = new Text::Amharic::Metaphone ( style => "sera" );
+  my $mphone = new Text::Metaphone::Amharic ( style => "sera" );
 
 =head3 After Instantiation:
 
@@ -472,12 +472,14 @@ Daniel Yacob,  L<dyacob@cpan.org|mailto:dyacob@cpan.org>
 
 =head1 SEE ALSO
 
-L<Text::TransMetaphone>
+=item L<http://daniel.yacob.name/papers/ICESXV.pdf>
 
-Included with this package:
+=item L<Text::TransMetaphone>
+
+=item Included with this package:
 
   examples/amphone.pl         examples/ipa-phone.pl
   examples/amphone-high.pl    examples/ipa-phone-high.pl
-  examples/granularity.p     examples/matchtest.pl
+  examples/granularity.pl     examples/matchtest.pl
 
 =cut
