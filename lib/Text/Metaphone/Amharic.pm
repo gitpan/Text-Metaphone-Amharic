@@ -11,7 +11,7 @@ BEGIN
 	use strict;
 	use vars qw( $VERSION %IMExpected %IMError %plosives $GRANDULARITY $STYLE );
 
-	$VERSION = "0.04";
+	$VERSION = "0.05";
 
 	%plosives = (
 		k => 'ቀ',
@@ -246,11 +246,10 @@ my ( $self, $re, @keys ) = @_;
 	#  try to keep least probable keys last:
 	#
 	$_ = $keys[0];                                       # fold upper   # bidi folding
-	my $keyboard = ( $self->{_grandularity} eq "low" ) ? qr/[ቕዥጥጭጽጵ]/ : qr/[ስቅቕትችንክዝዥጥጭጽጵፕ]/ ;
-	while ( /($keyboard)/ ) {
+	my $keyboard = ( $self->{_grandularity} eq "low" ) ? qr/([ቕዥጥጭጽጵ])/ : qr/([ስቅቕትችንክዝዥጥጭጽጵፕ])/ ;
+	while ( /$keyboard/ ) {
 		my $a = $1;
 		my @newKeys;
-		# print "NOW<$a>: $_\n";
 		s/$a/$IMExpected{$a}/;
 		for (my $i=0; $i < @keys; $i++) {
 			$newKeys[$i] = $keys[$i];           # copy old keys
@@ -259,9 +258,7 @@ my ( $self, $re, @keys ) = @_;
 		}
 		$newKeys[0] =~ s/$a/ሀ$IMError{$a}->[$self->{style}]/;  # update new keys for alternative
 		for (my $i=1; $i < @newKeys; $i++) {
-			# print "  $newKeys[$i]\n";
 			$newKeys[$i] =~ s/([^ሀ])$a/$1ሀ$IMError{$a}->[$self->{style}]/;  # update new keys for alternative
-			# print "    $newKeys[$i]\n";
 		}
 		push (@keys,@newKeys);   # add new keys to old keys
 

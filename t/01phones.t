@@ -36,5 +36,10 @@ is ( $key1, $key2, "ዓለም/ኣለም match." );
 
 
 @keys  = $mphone->metaphone ( "ጤና" );
+my $count = 0;
+foreach (@keys) {
+	$count++;
+	printf "%2i: $_\n", $count;
+}
 $key2  = $mphone->metaphone ( "ቴና" );
-is ( $keys[0], $key2, "ጤና/ቴና match." );
+is ( $keys[1], $key2, "ጤና/ቴና match." );
